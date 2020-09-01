@@ -1,0 +1,1 @@
+pangApp.init('myCanvas')
