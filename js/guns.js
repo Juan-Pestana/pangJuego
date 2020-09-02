@@ -34,6 +34,7 @@ class NewShot extends Shot {
                 super(ctx, canvasSize, position, shotShize);
 
              this.collision = false
+             this.isNewShot = true
              this.impactCounter = 0   
             }
             draw(){

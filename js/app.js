@@ -10,11 +10,13 @@ const pangApp = {
     w: undefined,
     h: undefined,
   },
+  frames: 0,
+  powUp : [],
   player: undefined,
   score: 0,
   shots: [],
   balls: [],
-  newGun: {state : true, shotsCounter : 0},
+  newGun: {state : false, shotsCounter : 0},
   obstacles: [],
   init(id) {
     this.canvasId = id;
@@ -27,8 +29,8 @@ const pangApp = {
     this.createPlayer()
 
     this.drawAll()
-    console.log(this.BigBall)
-    console.log("Este es el objeto", this.ctx);
+
+
   },
   drawAll() {
     const interval = setInterval(() => {
@@ -37,14 +39,18 @@ const pangApp = {
         elem.draw()
         elem.move(this.obstacles[0].speed)
       })
+      this.createPowUp()
+      this.powUp.length >= 1 ? this.powUp.forEach(elem => elem.draw()) : null
       this.balls.length >= 1 ? this.balls.forEach(elem => elem.draw()) : null
       this.checkCollision()
       this.checkObstCollision()
       this.checkShotCollision()
       this.player.draw()
+      this.checkPowUpCollision()
       this.obstacles.forEach(obs => obs.draw())
       this.gameover(interval)
       this.clearShots()
+      this.frames++
     }, 50)
   },
 
@@ -93,6 +99,18 @@ const pangApp = {
     
   },
 
+
+  createPowUp(){
+    // console.log(this.powUp)
+    // console.log(this.frames)
+    if (this.powUp.length === 0 && this.frames % 1000 === 0){
+      let weaponUp = new PowerUp(this.ctx, this.canvasSize)
+      this.powUp.push(weaponUp)
+
+      }
+      
+  },
+
   createPlayer() {
     this.player = new Player(this.ctx, this.canvasSize)
   },
@@ -136,7 +154,7 @@ const pangApp = {
               i--;  
               this.score ++
 
-              if(this.newGun.state){
+              if(this.shots[j].isNewShot){
                 this.shots[j].impactCounter++
 
                     if(this.shots[j].impactCounter === 3){
@@ -164,7 +182,21 @@ const pangApp = {
 
       for (let j = 0; j < this.obstacles.length; j++) {
 
+        
+
           let obstacle = this.obstacles[j];
+
+          // if (obstacle.positionY > ball.ballPos.y && obstacle.positionY < ball.ballPos.y + ball.ballSize.h && obstacle.possitionY ){
+          //   this.balls[i].ballVel.x *= -1
+          // }
+          if (ball.ballPos.x < obstacle.positionX + obstacle.obstSize.w && ball.ballPos.x + ball.ballSize.w > obstacle.positionX && ball.ballPos.y < obstacle.positionY && ball.ballPos.y + ball.ballSize.h > obstacle.positionY + obstacle.obstSize.h){
+
+            this.balls[i].ballVel.x *= -1
+
+          }
+          // if(ball.ballPos.y < obstacle.positionY + obstacle.obstSize.h && ball.ballSize.h + ball.ballPos.y > obstacle.positionY && ball.ballPos.x > obstacle.positionX &&ball.ballPos.x + ball.ballSize.w < obstacle.obstSize.w + obstacle.positionX){
+          //   this.ball[i].ballVel.y *= -1
+          // }
           
         if( ball.ballPos.x < obstacle.positionX + obstacle.obstSize.w && ball.ballPos.x + ball.ballSize.w > obstacle.positionX && ball.ballPos.y < obstacle.positionY + obstacle.obstSize.h && ball.ballSize.h + ball.ballPos.y > obstacle.positionY){
 
@@ -172,6 +204,28 @@ const pangApp = {
         }
       }
     }
+  },
+
+  checkPowUpCollision(){
+    this.powUp.forEach(elem => {
+
+      if (this.player.playerPos.x < elem.powUpPos.x + elem.powUpSize.w && this.player.playerSize.x + this.player.playerSize.w > elem.powUpPos.x && this.playerPos.y < elem.powUpPos.y + elem.powUpSize.h && this.player.playerSize.h + this.player.playerPos.y > elem.powUpPos.y){
+      
+
+        console.log('powerup')
+      this.newGun.state = true;
+      this.powUp.splice(1 ,1)
+
+      }
+
+    })
+
+    
+
+      
+
+    
+
   },
 
   createMediumBall(ball){
@@ -205,7 +259,7 @@ const pangApp = {
       for (let j = 0; j < this.obstacles.length; j++) {
         let obstacle = this.obstacles[j];
         if (shot.position.x < obstacle.positionX + obstacle.obstSize.w && shot.position.x + shot.shotShize.w > obstacle.positionX && shot.position.y < obstacle.positionY + obstacle.obstSize.h && shot.shotShize.h + shot.position.y > obstacle.positionY) {
-          if (this.newGun.state){
+          if (this.shots[i].isNewShot){
             this.shots[i].collision = true
           }else{
             this.obstacles.splice(i, 1)
