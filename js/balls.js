@@ -17,8 +17,8 @@ class Ball {
             y: 100
         }
         this.ballVel = {
-            x: 8,
-            y: 1
+            x: 10,
+            y: 3
         }
         this.ballPhysics = {
             gravity: .4
