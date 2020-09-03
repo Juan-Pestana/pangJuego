@@ -10,14 +10,16 @@ const pangApp = {
     w: undefined,
     h: undefined,
   },
+  background: undefined,
   frames: 0,
   powUp : [],
   player: undefined,
-  score: 0,
+  score: {value : 0, object : undefined},
   shots: [],
   balls: [],
-  newGun: {state : false, shotsCounter : 0},
-  obstacles: [],
+  newGun: {state : false , shotsCounter : 0},
+  obstacles: undefined,
+  gameOver : false,
   init(id) {
     this.canvasId = id;
     this.ctx = document.getElementById(this.canvasId).getContext("2d");
@@ -25,8 +27,12 @@ const pangApp = {
     this.setEventListeners()
     this.setEventHandlers();
     this.createNewBall()
+    this.createPowUp()
     this.generateObstacles()
     this.createPlayer()
+    this.createScore()
+    this.drawBackground()
+
 
     this.drawAll()
 
@@ -35,19 +41,17 @@ const pangApp = {
   drawAll() {
     const interval = setInterval(() => {
       this.clearScreen()
-      if (this.shots.length >= 1) this.shots.forEach(elem => {
-        elem.draw()
-        elem.move(this.obstacles[0].speed)
-      })
-      this.createPowUp()
+      this.background.draw()
+      this.drawShots()
       this.powUp.length >= 1 ? this.powUp.forEach(elem => elem.draw()) : null
       this.balls.length >= 1 ? this.balls.forEach(elem => elem.draw()) : null
       this.checkCollision()
       this.checkObstCollision()
       this.checkShotCollision()
+      this.score.object.draw(this.score.value)
       this.player.draw()
       this.checkPowUpCollision()
-      this.obstacles.forEach(obs => obs.draw())
+      this.obstacles ? this.obstacles.draw() : null
       this.gameover(interval)
       this.clearShots()
       this.frames++
@@ -79,6 +83,7 @@ const pangApp = {
     }
   },
 
+
   createShot() {
 
 
@@ -92,7 +97,7 @@ const pangApp = {
       this.shots.push(shot)
       this.newGun.shotsCounter++
     }
-    if(this.newGun.shotsCounter > 3 ){
+    if(this.newGun.shotsCounter === 3 ){
       this.newGun.state = false
       this.newGun.shotsCounter = 0
     }
@@ -103,13 +108,22 @@ const pangApp = {
   createPowUp(){
     // console.log(this.powUp)
     // console.log(this.frames)
-    if (this.powUp.length === 0 && this.frames % 1000 === 0){
-      let weaponUp = new PowerUp(this.ctx, this.canvasSize)
-      this.powUp.push(weaponUp)
 
-      }
+      let powUp = setInterval(() =>{
+        console.log(this.powUp.length)
+        console.log(this.newGun.state)
+        if (this.newGun.state === false && this.powUp.length === 0){
+          let weaponUp = new PowerUp(this.ctx, this.canvasSize)
+         this.powUp.push(weaponUp)
+        }
+        
+
+      }, 10500)
+
+    },
       
-  },
+
+
 
   createPlayer() {
     this.player = new Player(this.ctx, this.canvasSize)
@@ -119,6 +133,9 @@ const pangApp = {
     let ball = new Ball(this.ctx, this.canvasSize)
     this.balls.push(ball)
 
+  },
+  createScore(){
+    this.score.object = new Score(this.ctx, this.canvasSize, this.score.value)
   },
 
   clearShots() {
@@ -130,8 +147,25 @@ const pangApp = {
     })
   },
 
+  drawBackground() {
+    this.background = new Background(this.ctx, this.canvasSize.w, this.canvasSize.h, 'img/background.png');
+  },
+
   clearScreen() {
     this.ctx.clearRect(0, 0, this.canvasSize.w, this.canvasSize.h)
+  },
+
+  drawShots(){
+    let hSpeed
+    if (this.obstacles){
+      hSpeed = this.obstacles.speed
+    }
+
+    if (this.shots.length >= 1) this.shots.forEach(elem => {
+      elem.draw()
+      elem.move(hSpeed)
+    })
+
   },
 
 
@@ -152,7 +186,7 @@ const pangApp = {
               }
               this.balls.splice(i, 1);
               i--;  
-              this.score ++
+              this.score.value ++
 
               if(this.shots[j].isNewShot){
                 this.shots[j].impactCounter++
@@ -166,7 +200,7 @@ const pangApp = {
                 this.shots.splice(j, 1);
               }
               
-              console.log(this.score)
+              
               break;
           }
       }
@@ -180,16 +214,15 @@ const pangApp = {
 
       let ball = this.balls[i];
 
-      for (let j = 0; j < this.obstacles.length; j++) {
+      // for (let j = 0; j < this.obstacles.length; j++) {
 
-        
+          let obstacle = this.obstacles;
 
-          let obstacle = this.obstacles[j];
-
-          // if (obstacle.positionY > ball.ballPos.y && obstacle.positionY < ball.ballPos.y + ball.ballSize.h && obstacle.possitionY ){
+          if(this.obstacles){
+            // if (obstacle.positionY > ball.ballPos.y && obstacle.positionY < ball.ballPos.y + ball.ballSize.h && obstacle.possitionY ){
           //   this.balls[i].ballVel.x *= -1
           // }
-          if (ball.ballPos.x < obstacle.positionX + obstacle.obstSize.w && ball.ballPos.x + ball.ballSize.w > obstacle.positionX && ball.ballPos.y < obstacle.positionY && ball.ballPos.y + ball.ballSize.h > obstacle.positionY + obstacle.obstSize.h){
+          if (ball.ballPos.x < obstacle.positionX + obstacle.obstSize.w && ball.ballPos.x + ball.ballSizeW > obstacle.positionX && obstacle.positionY + obstacle.obstSize.h < ball.ballPos.y + ball.ballSize.h && obstacle.positionY < ball.ballPos.y + ball.ballSize.h) {
 
             this.balls[i].ballVel.x *= -1
 
@@ -201,35 +234,34 @@ const pangApp = {
         if( ball.ballPos.x < obstacle.positionX + obstacle.obstSize.w && ball.ballPos.x + ball.ballSize.w > obstacle.positionX && ball.ballPos.y < obstacle.positionY + obstacle.obstSize.h && ball.ballSize.h + ball.ballPos.y > obstacle.positionY){
 
           this.balls[i].ballVel.y *= -1
-        }
+        } 
+
+
+
+          }
+          
       }
-    }
   },
 
   checkPowUpCollision(){
+
     this.powUp.forEach(elem => {
 
-      if (this.player.playerPos.x < elem.powUpPos.x + elem.powUpSize.w && this.player.playerSize.x + this.player.playerSize.w > elem.powUpPos.x && this.playerPos.y < elem.powUpPos.y + elem.powUpSize.h && this.player.playerSize.h + this.player.playerPos.y > elem.powUpPos.y){
+
+      if (this.player.playerPos.x < elem.powUpPos.x + elem.powUpSize.w && this.player.playerPos.x + this.player.playerSize.w > elem.powUpPos.x && this.player.playerPos.y < elem.powUpPos.y + elem.powUpSize.h && this.player.playerSize.h + this.player.playerPos.y > elem.powUpPos.y){
       
 
-        console.log('powerup')
       this.newGun.state = true;
-      this.powUp.splice(1 ,1)
+      this.powUp.splice(0 ,1)
 
       }
 
     })
 
-    
-
-      
-
-    
-
   },
 
   createMediumBall(ball){
-    //  let oldBall = ball
+
     let mBall = new MediumBall(this.ctx, this.canvasSize, ball.ballPos.x, ball.ballPos.y + 5, ball.ballSize.w / 2, ball.ballSize.h / 2, 10, -7, 25)
     this.balls.push(mBall)
     mBall = new MediumBall(this.ctx, this.canvasSize, ball.ballPos.x, ball.ballPos.y, ball.ballSize.w / 2, ball.ballSize.h /  2, -10, -12, 25 )
@@ -238,7 +270,7 @@ const pangApp = {
   },
 
   createSmallBall(ball){
-    //let oldBall = ball
+
     let sBall = new SmallBall(this.ctx, this.canvasSize, ball.ballPos.x, ball.ballPos.y + 25, ball.ballSize.w / 2, ball.ballSize.h / 2, 5, -7, 20)
     this.balls.push(sBall)
     sBall = new SmallBall(this.ctx, this.canvasSize, ball.ballPos.x, ball.ballPos.y + 10, ball.ballSize.w / 2, ball.ballSize.h / 2, -5, -13, 20)
@@ -246,37 +278,49 @@ const pangApp = {
   }, 
 
   generateObstacles() {
-    if (this.obstacles.length < 1) {
-      
-      this.obstacles.push(new Obstacle(this.ctx, this.canvasSize, 250, Math.random() * (500 - 250) + 250, 'red'));
+    
+      const obstInterval = setInterval(() => {
+
+          if( this.obstacles === undefined){
+          this.obstacles = new Obstacle(this.ctx, this.canvasSize, 250, Math.random() * (500 - 250) + 250, 'red');
+        }
+      }, 1000);
+    },
    
-    }
-  },
 
   checkShotCollision() {
     for (let i = 0; i < this.shots.length; i++) {
+
       let shot = this.shots[i];
-      for (let j = 0; j < this.obstacles.length; j++) {
-        let obstacle = this.obstacles[j];
-        if (shot.position.x < obstacle.positionX + obstacle.obstSize.w && shot.position.x + shot.shotShize.w > obstacle.positionX && shot.position.y < obstacle.positionY + obstacle.obstSize.h && shot.shotShize.h + shot.position.y > obstacle.positionY) {
+
+      if (this.obstacles){
+
+        let obstacle = this.obstacles;
+
+        if(shot.position.y < obstacle.positionY + obstacle.obstSize.h && shot.position.x + shot.shotShize.w > obstacle.positionX && shot.position.x + shot.shotShize.w < obstacle.positionX + obstacle.obstSize.w){  
+
+        // if (shot.position.x < obstacle.positionX + obstacle.obstSize.w && shot.position.x + shot.shotShize.w > obstacle.positionX && shot.position.y < obstacle.positionY + obstacle.obstSize.h && shot.shotShize.h + shot.position.y > obstacle.positionY) {
           if (this.shots[i].isNewShot){
+
             this.shots[i].collision = true
+
           }else{
-            this.obstacles.splice(i, 1)
+            this.shots.forEach(elem => {
+              if(elem.collision){
+                this.shots.splice(this.shots.indexOf(elem), 1)
+              }
+            })
+            this.obstacles = undefined
             i--
-            this.shots.splice(j, 1)
-            j--
+            this.shots.splice(i, 1)
+            
           }
-          if( this.obstacles.length === 0){
-            const timeout = setTimeout(() => {
-              this.obstacles.push(new Obstacle(this.ctx, this.canvasSize, 250, Math.random() * (500 - 250) + 250, 'red'));
-              }, 500);
-              break
-          }
+      }
+        
+
           
         }
       }
-    }
   },
 
   gameover(interval){
@@ -286,12 +330,16 @@ const pangApp = {
         elem.ballPos.y < this.player.playerPos.y + this.player.playerSize.h &&
         elem.ballSize.h - 12 + elem.ballPos.y > this.player.playerPos.y){
 
-          return clearInterval(interval)
+
+  
+         return clearInterval(interval)
+        
+
         }
     })
-  }
+  },
+
+
    
-
-
   
 };

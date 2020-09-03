@@ -22,7 +22,7 @@ class Player {
 
     init() {
         this.imageInstance = new Image()
-        this.imageInstance.src = `img/car.png`
+        this.imageInstance.src = `img/goku.png`
     }
 
     draw() {

@@ -4,7 +4,7 @@ class Shot {
         this.canvasSize = canvasSize
 
         this.position = { x: positionX + 40 , y: canvasSize.h - 180},
-        this.shotShize ={w : 10, h : canvasSize.h}
+        this.shotShize ={w : 10, h : 500}
     
          
     }
