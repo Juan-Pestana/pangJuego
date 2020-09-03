@@ -1,6 +1,6 @@
 class Ball {
 
-    constructor(ctx, canvasSize) {
+    constructor(ctx, canvasSize, velX) {
 
         this.ctx = ctx
         this.canvasSize = canvasSize
@@ -17,7 +17,7 @@ class Ball {
             y: 100
         }
         this.ballVel = {
-            x: 10,
+            x: velX,
             y: 3
         }
         this.ballPhysics = {

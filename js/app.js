@@ -131,7 +131,9 @@ const pangApp = {
   },
 
   createNewBall() {
-    let ball = new Ball(this.ctx, this.canvasSize)
+    let ball = new Ball(this.ctx, this.canvasSize, 10)
+    this.balls.push(ball)
+    ball = new Ball(this.ctx, this.canvasSize, -10)
     this.balls.push(ball)
 
   },
@@ -345,10 +347,10 @@ const pangApp = {
       if( this.gameOver){
 
 
-      console.log('caca')
-      this.ctx.font = "bold 26px Arial"
-      this.ctx.fillStyle = "white"
-      this.ctx.fillText(`Game over`, this.width / 2 - 100, this.height / 2)
+
+      this.ctx.font = "bold 52px Arial"
+      this.ctx.fillStyle = "red"
+      this.ctx.fillText(`GAME OVER`, this.canvasSize.w / 2 - 100, this.canvasSize.h / 2)
       }
       
   
