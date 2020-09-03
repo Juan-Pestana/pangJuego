@@ -31,6 +31,7 @@ const pangApp = {
     this.generateObstacles()
     this.createPlayer()
     this.createScore()
+    this.drawGameOver()
     this.drawBackground()
 
 
@@ -330,7 +331,7 @@ const pangApp = {
         elem.ballPos.y < this.player.playerPos.y + this.player.playerSize.h &&
         elem.ballSize.h - 12 + elem.ballPos.y > this.player.playerPos.y){
 
-
+          this.gameOver = true
   
          return clearInterval(interval)
         
@@ -338,6 +339,25 @@ const pangApp = {
         }
     })
   },
+
+  drawGameOver(){
+    setInterval(() => {
+      if( this.gameOver){
+
+
+      console.log('caca')
+      this.ctx.font = "bold 26px Arial"
+      this.ctx.fillStyle = "white"
+      this.ctx.fillText(`Game over`, this.width / 2 - 100, this.height / 2)
+      }
+      
+  
+    }, 1000);
+    
+    
+
+
+  }
 
 
    
