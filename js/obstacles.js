@@ -10,11 +10,15 @@ class Obstacle {
             w: Math.random() * (650 - 450) + 450,
             h: 20
         }
+        this.imageInstance = new Image()
+        this.imageInstance.src = `img/obs.png`
         this.draw()
     }
     draw() {
-        this.ctx.fillStyle = this.color;
-        this.ctx.fillRect(this.positionX, this.positionY, this.obstSize.w, this.obstSize.h);
+        // this.ctx.fillStyle = this.color;
+        // this.ctx.fillRect(this.positionX, this.positionY, this.obstSize.w, this.obstSize.h);
+        this.ctx.drawImage(this.imageInstance, this.positionX, this.positionY, this.obstSize.w, this.obstSize.h)
+
         this.move()
     }
     move() {

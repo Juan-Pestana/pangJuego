@@ -54,6 +54,7 @@ const pangApp = {
       this.checkPowUpCollision()
       this.obstacles ? this.obstacles.draw() : null
       this.gameover(interval)
+      this.youWin(interval)
       this.clearShots()
       this.frames++
     }, 50)
@@ -347,21 +348,52 @@ const pangApp = {
       if( this.gameOver){
 
 
-
-      this.ctx.font = "bold 52px Arial"
+      this.ctx.font = "bold 64px Arial"
       this.ctx.fillStyle = "red"
-      this.ctx.fillText(`GAME OVER`, this.canvasSize.w / 2 - 100, this.canvasSize.h / 2)
+      this.ctx.fillText(`GAME OVER`, this.canvasSize.w / 2 - 160, this.canvasSize.h / 2)
+
+      var lostImg = new Image
+      lostImg.src = 'img/gokuLost.png'
+
+      lostImg.addEventListener('load', () => {
+        this.ctx.drawImage(lostImg, this.canvasSize.w/ 2 - 400, this.canvasSize.h +100, 800, 370)
+      })
+      
+
+    
+
+      this.reset()
       }
       
   
     }, 1000);
     
+
+  },
+
+  youWin(interval){
+    if (this.balls.length === 0){
+
+
+      this.ctx.font = "bold 64px Arial"
+      this.ctx.fillStyle = "green"
+      this.ctx.fillText(`YOU WIN`, this.canvasSize.w / 2 - 160, 100)
+
+
+
+      clearInterval(interval)
+      this.reset()
+    }
     
+  },
 
+  reset(){
+    setTimeout(() =>{
+      location.reload();
+    },3000)
+  },
 
-  }
-
-
+ 
    
   
 };
